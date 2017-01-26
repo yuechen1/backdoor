@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
     int n;
+    int offState = 0;
     if (argc < 2) {
         fprintf(stderr,"ERROR, no port provided\n");
         exit(1);
@@ -42,12 +43,18 @@ int main(int argc, char *argv[])
             &clilen);
     if (newsockfd < 0) 
         error("ERROR on accept");
-    bzero(buffer,256);
-    n = read(newsockfd,buffer,255);
-    if (n < 0) error("ERROR reading from socket");
-    printf("Here is the message: %s\n",buffer);
-    n = write(newsockfd,"I got your message",18);
-    if (n < 0) error("ERROR writing to socket");
+    do { //not sure if this starts before or after bzero. I think it's before)
+        bzero(buffer,256);
+        n = read(newsockfd,buffer,255);
+        if (n < 0) error("ERROR reading from socket");
+        //translate from buffer & execute
+        //execution can be done in either one of two formats: 
+        //1) assign each command to a number and execute based on CASE
+        //2) do a string comparison to verify if correct command
+        printf("Here is the message: %s\n",buffer);
+        n = write(newsockfd,"I got your message",18);
+        if (n < 0) error("ERROR writing to socket");
+    } while (offState == 0); //can sub with a boolean if desired.
     close(newsockfd);
     close(sockfd);
     return 0; 

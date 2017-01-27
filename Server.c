@@ -7,6 +7,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+/*
+*code provided by the professor
+*/
+
 void error(const char *msg)
 {
     perror(msg);
@@ -18,8 +22,10 @@ int main(int argc, char *argv[])
     int sockfd, newsockfd, portno;
     socklen_t clilen;
     char buffer[256];
+    char password[] = "a";
     struct sockaddr_in serv_addr, cli_addr;
     int n;
+    int offStatus = 1;
     if (argc < 2) {
         fprintf(stderr,"ERROR, no port provided\n");
         exit(1);
@@ -42,12 +48,40 @@ int main(int argc, char *argv[])
             &clilen);
     if (newsockfd < 0) 
         error("ERROR on accept");
-    bzero(buffer,256);
-    n = read(newsockfd,buffer,255);
-    if (n < 0) error("ERROR reading from socket");
-    printf("Here is the message: %s\n",buffer);
-    n = write(newsockfd,"I got your message",18);
-    if (n < 0) error("ERROR writing to socket");
+    
+    /*
+    *code for the inmpementation of the project
+    *over all loop
+    */
+    /*
+    *send a promote for password
+    *check for password
+    *check the incoming message for commands
+    */
+
+    n = write(newsockfd, "password: ", 10);
+    bzero(buffer, 256);
+    if(n<0) offStatus = 0;
+    n = read(newsockfd, buffer, 1);
+    printf("%s\n", buffer);
+    if (strcmp(password, buffer) != 0 )
+    {
+        printf("%d\n", strcmp(password,buffer));
+        error("Error: incorrect password");
+        offStatus = 0;
+    }
+    n = write(newsockfd, "Welcome to this backdoor", 26);
+
+    do {
+
+        bzero(buffer,256);
+        n = read(newsockfd,buffer,255);
+        if (n < 0) error("ERROR reading from socket");
+        printf("Here is the message: %s\n",buffer);
+        n = write(newsockfd,"I got your message",18);
+        if (n < 0) error("ERROR writing to socket");
+    }while (offStatus == 1);
+    
     close(newsockfd);
     close(sockfd);
     return 0; 

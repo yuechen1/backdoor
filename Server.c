@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
         } 
         
         
-        //
+        //returns the current user (if applicable)
         else if (strncmp(buffer, "who\n", 4) == 0) {
 			if(i_counter = getlogin_r(path2, sizeof(path2)) == 0){
 				tempstr = (char *) realloc(tempstr, 100);

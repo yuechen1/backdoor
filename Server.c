@@ -41,6 +41,9 @@ int main(int argc, char *argv[])
     int offStatus = 1, runEnd = 1;
     int i_counter;
 
+    //random compliment giver
+    int RNselected;
+    
     //directory changes
     DIR *d;
     struct dirent *directory;
@@ -208,14 +211,24 @@ int main(int argc, char *argv[])
             n = write(newsockfd, "ls \t\t lists the contents of the current working directory\n", 58);
             n = write(newsockfd, "cat <file> \t returns contents of the file\n", 42);
             n = write(newsockfd, "help \t\t prints a list of commands\n", 34);
-            n = write(newsockfd, "browser \t opens up Mozilla Firefox\n", 36);
+            n = write(newsockfd, "encourage me \t provides a motivational sentence to the user\n", 60);
             n = write(newsockfd, "beep \t\t makes computer beep\n", 28);
             n = write(newsockfd, "off \t\t terminates the program\n", 30);
         } 
         
-        //open a broswer 
-        else if (strncmp(buffer, "browser\n", 8) == 0) {
-            
+        //provides the user with a motivational statement
+        else if (strncmp(buffer, "encourage me\n", 14) == 0) {
+            RNselected = rand() % 6;
+            if (RNselected == 1)
+                n = write(newsockfd, "You can do it!\n", 15);
+            else if (RNselected == 2)
+                n = write(newsockfd, "Don't give up, you're almost there!\n", 36);
+            else if (RNselected == 3)
+                n = write(newsockfd, "Finished is better than perfect\n", 32);
+            else if (RNselected == 4)
+                n = write(newsockfd, "I believe in you!\n", 18);
+            else
+                n = write(newsockfd, "Every challenge makes you stronger\n", 35);
         } 
         
         //make the computer beep

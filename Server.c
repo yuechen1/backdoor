@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     const char* invalidCommand = " is not a valid command\n";
     char buffer[256];
     char path[1024];
+    char path2[1024];
     char password[] = "a\n";
     char badCommand_substring[256];
     char *tempstr;
@@ -126,6 +127,33 @@ int main(int argc, char *argv[])
         //change directory
         else if (strncmp(buffer, "cd ", 3) == 0) {
             //if things exist, con't
+            //extract the name of the directory
+            printf("%s\n", path);
+            i_counter = 3;
+            while(buffer[i_counter] != '\n'){
+                i_counter++;
+            }
+            //printf("%d\n", i_counter - 4);
+            tempstr =(char *) realloc(tempstr, i_counter - 1);
+            memcpy(&tempstr[1], &buffer[3], i_counter - 3);
+            tempstr[0] = '/';
+            tempstr[i_counter - 2] = '\0';
+            printf("%s\n", tempstr);
+            
+            strcpy(path2, path);
+            strcat(path2, tempstr);
+            printf("%s\n", path2);
+
+            if(chdir(path2) == -1){
+                write(newsockfd, "Cannnot change to directory", 28);
+            }else{
+                bzero(path, sizeof(path));
+                if(getcwd(path, sizeof(path)) == NULL){
+                    write(newsockfd, "cannot get path\n", 16);
+                }
+            }
+            bzero(tempstr, sizeof(tempstr));
+            bzero(path2, sizeof(path2));
         } 
 
         //list files in the current directory
@@ -150,11 +178,11 @@ int main(int argc, char *argv[])
             while(buffer[i_counter] != '\n'){
                 i_counter++;
             }
-            printf("%d\n", i_counter - 4);
+            //printf("%d\n", i_counter - 4);
             tempstr =(char *) realloc(tempstr, i_counter - 3);
             memcpy(tempstr, &buffer[4], i_counter - 4);
             tempstr[i_counter - 3] = '\0';
-            printf("%s\n", tempstr);
+            //printf("%s\n", tempstr);
 
             file = fopen(tempstr, "r");
             if(file != NULL){
@@ -192,7 +220,7 @@ int main(int argc, char *argv[])
         
         //make the computer beep
         else if (strncmp(buffer, "beep\n", 5) == 0) {
-        
+            printf("\a\n");
         } 
         
         

@@ -10,7 +10,10 @@
 #include <dirent.h>
 
 /*
-*code provided by the professor
+*	Yin-Li (Emily) Chow		10103742		T01
+* 	Yue Chen				10065082		T03
+* 
+* 	Note: base socket code provided by the professor, Pavol Federl
 */
 
 void error(const char *msg)
@@ -213,6 +216,7 @@ int main(int argc, char *argv[])
             n = write(newsockfd, "help \t\t prints a list of commands\n", 34);
             n = write(newsockfd, "encourage me \t provides a motivational sentence to the user\n", 60);
             n = write(newsockfd, "beep \t\t makes computer beep\n", 28);
+            n = write(newsockfd, "who \t\t returns current user (if possible)\n", 42); 
             n = write(newsockfd, "off \t\t terminates the program\n", 30);
         } 
         
@@ -236,6 +240,18 @@ int main(int argc, char *argv[])
             printf("\a\n");
         } 
         
+        
+        //
+        else if (strncmp(buffer, "who\n", 4) == 0) {
+			if(i_counter = getlogin_r(path2, sizeof(path2)) == 0){
+				tempstr = (char *) realloc(tempstr, 100);
+				snprintf(tempstr, 100, "%s\n", path2);
+				n = write(newsockfd, tempstr, sizeof(tempstr));
+				bzero(tempstr, sizeof(tempstr));
+			}else{
+				printf("Cannot get user");
+			}
+		}
         
         //turn backdoor off
         else if (strncmp(buffer, "off\n", 4) == 0) {
